@@ -16,20 +16,26 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 /**
- *
  * @author pkern01
  */
 public class Server extends Thread {
-    
+
+    private final int DAYS_COUNT = 120;
+    private final String AGENDA_PATH = "agenda.txt";
     private final String USERS_PATH = "users.txt";
-    
+
     private Inet4Address ipAddress;
     private ServerSocket server;
     private ArrayList<SocketMessaging> connections;
     private ArrayList<Login> logins;
     private ServerUI ui;
+    private Agenda agenda;
     private boolean connected;
-    
+
+    public Agenda getAgenda() {
+        return agenda;
+    }
+
     public Server(ServerUI ui) {
         this.ipAddress = INetAdressUtil.premiereAdresseNonLoopback();
         this.connections = new ArrayList<>();
@@ -44,29 +50,35 @@ public class Server extends Thread {
             this.ui.receiveData("[ERROR] Erreur lors de la création du serveur !");
         }
     }
+
     public int connectionCount() {
         return connections.size();
     }
+
     public ArrayList<SocketMessaging> getConnections() {
         return connections;
     }
+
     public java.net.InetAddress getInetAddress() {
         return server.getInetAddress();
     }
+
     public int getLocalPort() {
         return server.getLocalPort();
     }
+
     public boolean isConnected() {
         return connected;
     }
-    
-    
+
+
     @Override
     public void run() {
         loadUsers();
+        loadAgenda();
         acceptConnections();
     }
-    
+
     private void loadUsers() {
         try {
             File file = new File(USERS_PATH);
@@ -85,6 +97,7 @@ public class Server extends Thread {
             ui.receiveData("[ERROR] Erreur lors de l'ouverture du fichier utilisateur.");
         }
     }
+
     private void createUser(String username, String password) {
         logins.add(new Login(username, password, false));
         try {
@@ -95,7 +108,38 @@ public class Server extends Thread {
             ui.receiveData("[ERROR] Erreur lors de l'écriture dans le fichier utilisateur.");
         }
     }
-    
+
+    private void loadAgenda() {
+        try {
+            File file = new File(AGENDA_PATH);
+            if (file.isFile()) {
+                FileReader reader = new FileReader(AGENDA_PATH);
+                BufferedReader bufferedReader = new BufferedReader(reader);
+                int lineCount = 0;
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    lineCount++;
+                }
+                reader.close();
+                if (lineCount > 1) {
+                    System.out.println("ici");
+                    this.agenda = new Agenda(AGENDA_PATH);
+                } else {
+                    this.agenda = new Agenda(DAYS_COUNT);
+                }
+            } else {
+                file.createNewFile();
+                this.agenda = new Agenda(DAYS_COUNT);
+            }
+        } catch (IOException ex) {
+            ui.receiveData("[ERROR] Erreur lors de l'ouverture du fichier utilisateur.");
+        }
+    }
+
+    public void saveAgenda() {
+        agenda.save(AGENDA_PATH);
+    }
+
     private void acceptConnections() {
         while (connected) {
             try {
@@ -111,7 +155,7 @@ public class Server extends Thread {
             }
         }
     }
-    
+
     public void sendCommand(String message) {
         if (message.startsWith("::")) {
             try {
@@ -139,11 +183,12 @@ public class Server extends Thread {
             }
             ui.receiveData("Serveur fermé.");
             server.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
 
     public void sendStringToUI(String s) {
         ui.receiveData(s);
     }
-    
+
 }

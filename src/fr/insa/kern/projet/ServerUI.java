@@ -23,10 +23,11 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         super("Projet Système Temps Réel - Serveur");
         setupWindow();
     }
+
     private void setupWindow() {
         //FERMETURE DE LA FENETRE
         WindowListener l = new WindowAdapter() {
-            public void windowClosing(WindowEvent e){
+            public void windowClosing(WindowEvent e) {
                 if (server != null) server.close();
                 System.exit(0);
             }
@@ -48,7 +49,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
 
         //LABEL
         lblServerInfo = new JLabel("Serveur éteint.");
-        lblServerInfo.setBounds(12, 110, 164,30);
+        lblServerInfo.setBounds(12, 110, 164, 30);
         add(lblServerInfo);
 
         //CONSOLE
@@ -59,8 +60,8 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         taConsole.setLineWrap(true);
         spConsole = new JScrollPane(taConsole);
         spConsole.setBounds(182, 12, 358, 311);
+        spConsole.getVerticalScrollBar().addAdjustmentListener(e -> e.getAdjustable().setValue(e.getAdjustable().getMaximum())); //Auto scroll
         add(spConsole);
-        add(taConsole);
 
         //CHAMP D'ENTREE
         tfInput = new JTextField();
@@ -78,6 +79,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         setSize(562, 400);
         setLayout(null);
         setVisible(true);
+        setResizable(false);
     }
 
     public void receiveData(String s) {
@@ -107,17 +109,16 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
             tfInput.setText("");
         }
     }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
     }
+
     @Override
     public void keyReleased(KeyEvent e) {
 
     }
-
-
-
 
 
     public static void main(String[] args) {

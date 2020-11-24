@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- *
  * @author pkern01
  */
 public class SocketMessaging extends Thread {
@@ -30,14 +29,19 @@ public class SocketMessaging extends Thread {
     private boolean connected;
     private ArrayList<Login> logins;
     private int ioErrorsCount;
-    
+    //A CHANGER SELON LA METHODE########################
+    private String[] reservationDateTime;
+    private boolean wasReservation;
+    //##################################################
+
     public boolean isConnected() {
         return connected;
     }
+
     public String getClientName() {
         return name;
     }
-    
+
     public SocketMessaging(Server server, Socket socket, ArrayList<Login> logins) {
         try {
             this.server = server;
@@ -48,24 +52,28 @@ public class SocketMessaging extends Thread {
             this.name = "";
             this.connected = true;
             this.ioErrorsCount = 0;
+            this.reservationDateTime = null;
+            this.wasReservation = false;
         } catch (IOException ex) {
             server.sendStringToUI("[ERROR] Erreur lors de l'ouverture des flux.");
         }
     }
-    
+
     @Override
     public void run() {
-        while (readMessage()){}
+        while (readMessage()) {
+        }
     }
 
     public boolean readMessage() {
         if (connected) {
             try {
                 String line = in.readLine();
+                System.out.println("input : " + line);
                 if (line == null) return false;
                 if (line.startsWith("::")) {
-                    String response = readCommand(line);
-                    switch (response) {
+                    String result = readCommand(line);
+                    switch (result) {
                         case "null":
                             return false;
                         case "connect:true":
@@ -76,12 +84,29 @@ public class SocketMessaging extends Thread {
                             close();
                             return false;
                         default:
-                            sendMessage(response);
+                            sendMessage(result);
                             return true;
                     }
                 } else {
-                    server.sendStringToUI("[" + name + "] " + line);
-                    sendMessage(line);
+                    System.out.println("was reservation : " + wasReservation);
+                    //A CHANGER SELON LA METHODE########################
+                    Object[] response = Classifier.getResponse(name, line, server.getAgenda(), reservationDateTime, wasReservation);
+                    wasReservation = (response[0] == Classifier.MessageType.RESERVATION);// && Boolean.parseBoolean(response[2].toString()); //On vérifie si le dernier message était une demande de réservation et qu'on a pu extraire les infos
+                    if (wasReservation && Boolean.parseBoolean(response[2].toString())) { //Si oui
+                        reservationDateTime = new String[2];
+                        //TODO
+                        reservationDateTime[0] = Agenda.getYearOfDayMonth(Integer.parseInt(response[4].toString()), Integer.parseInt(response[5].toString())) + "-" + response[5].toString() + "-" + response[4].toString();
+                        reservationDateTime[1] = response[3].toString();
+                    } else {
+                        reservationDateTime = null;
+                    }
+                    if (response[0] == Classifier.MessageType.CONFIRMATION && Boolean.parseBoolean(response[2].toString())) {
+                        server.saveAgenda();
+                    }
+                    sendMessage(response[1].toString());
+                    //##################################################
+                    server.sendStringToUI("[" + name + "] " + "[" + response[0] + "] " + line);
+                    server.sendStringToUI("Answer : " + response[1].toString());
                 }
             } catch (IOException ex) {
                 ioErrorsCount++;
@@ -98,7 +123,7 @@ public class SocketMessaging extends Thread {
         out.println(message);
         out.flush();
     }
-    
+
     public String readCommand(String message) {
         message = message.substring(2);
         String command = message.split("=")[0];
@@ -128,14 +153,15 @@ public class SocketMessaging extends Thread {
                 return "Commande inconnue.";
         }
     }
-    
+
     public void close() {
         try {
             server.sendStringToUI("Connexion avec \"" + name + "\" fermée.");
             connected = false;
             socket.close();
             server.getConnections().remove(this);
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+        }
     }
 
 }

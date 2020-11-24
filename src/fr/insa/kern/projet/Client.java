@@ -17,11 +17,10 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- *
  * @author pkern01
  */
 public class Client {
-    
+
     private final String ipAddress;
     private int port;
     private String username;
@@ -35,25 +34,31 @@ public class Client {
     public String getIpAddress() {
         return ipAddress;
     }
+
     public int getPort() {
         return port;
     }
+
     public BufferedReader getInReader() {
         return in;
     }
+
     public PrintWriter getOutWriter() {
         return out;
     }
+
     public Socket getSocket() {
         return socket;
     }
+
     public String getUserName() {
         return username;
     }
+
     public boolean isConnected() {
         return connected;
     }
-    
+
     public Client(String ipAddress, int port, String username, String password, ClientUI ui) {
         this.ipAddress = ipAddress;
         this.port = port;
@@ -62,14 +67,13 @@ public class Client {
         this.connected = false;
         this.ui = ui;
     }
-    
+
     public void connect() throws ConnectException, UnknownHostException, IOException {
         this.socket = new Socket(ipAddress, port);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         this.out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
         sendMessageAndGetResponse("::username=" + username);
         String response = sendMessageAndGetResponse("::password=" + password);
-        System.out.println(response);
         if (response.startsWith("bad-auth")) {
             connected = false;
             ui.receiveData("Identifiants incorrects !");
@@ -77,6 +81,7 @@ public class Client {
         } else {
             connected = true;
         }
+
     }
 
     public String sendMessageAndGetResponse(String message) {
@@ -88,19 +93,20 @@ public class Client {
                 return null;
             }
 
-            return in.readLine();
+            return in.readLine().replace("//", "\n");
         } catch (IOException ex) {
             ui.receiveData("[ERROR] Erreur lors de la lecture ou de l'écriture des flux.");
         }
         return null;
     }
-    
+
     public void disconnect() {
         try {
             ui.clientDisconnected();
             socket.close();
             connected = false;
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+        }
     }
-    
+
 }
