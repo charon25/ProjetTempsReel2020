@@ -19,6 +19,11 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     // Entrée depuis le serveur
     private JTextField tfInput;
     private JLabel lblInput;
+    // Boutons pour sélectionner le type de classification
+    private JLabel lblClassification;
+    private ButtonGroup grpClassification;
+    private JRadioButton rdLevenshtein;
+    private JRadioButton rdKNN;
 
     final private Border border = BorderFactory.createLineBorder(Color.BLACK); // Permet d'avoir une bordure noire
 
@@ -28,6 +33,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     public ServerUI() {
         super("Projet Système Temps Réel - Serveur");
         setupWindow();
+        //On choisit le classification par k-NN par défaut
     }
 
     // Initialise les différents composants de la fenêtre
@@ -82,6 +88,32 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         lblInput.setBounds(100, 332, 100, 13);
         add(lblInput);
 
+        // CLASSIFICATION
+        // LABEL
+        lblClassification = new JLabel("Type de classification : ");
+        lblClassification.setBounds(12, 150, 164, 30);
+        add(lblClassification);
+        // RADIOS BOUTONS
+        // LEVENSHTEIN
+        rdLevenshtein = new JRadioButton();
+        rdLevenshtein.setBounds(10, 172, 164, 30);
+        rdLevenshtein.setText("Distance de Levenshtein");
+        rdLevenshtein.addActionListener(this);
+        rdLevenshtein.setEnabled(false);
+        add(rdLevenshtein);
+        // k-NN
+        rdKNN = new JRadioButton();
+        rdKNN.setBounds(10, 195, 164, 30);
+        rdKNN.setText("k-NN (Vectorisation)");
+        rdKNN.setSelected(true);
+        rdKNN.addActionListener(this);
+        rdKNN.setEnabled(false);
+        add(rdKNN);
+        // BUTTON GROUP
+        grpClassification = new ButtonGroup();
+        grpClassification.add(rdLevenshtein);
+        grpClassification.add(rdKNN);
+
         // FENETRE
         setSize(562, 400);
         setLayout(null);
@@ -104,12 +136,23 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
                 lblServerInfo.setText("<html>Adresse : " + server.getInetAddress() + "<br>Port : " + server.getLocalPort() + "</html>");
                 btnRunServer.setEnabled(false);
                 btnStopServer.setEnabled(true);
+                rdLevenshtein.setEnabled(true);
+                rdKNN.setEnabled(true);
+                server.setClassificationMethod(Server.ClassificationMethod.KNN);
             }
         } else if (e.getSource().equals(btnStopServer)) { // Si c'est le bouton pour stopper le serveur, on l'arrête
             if (server.isConnected()) server.close();
             lblServerInfo.setText("Serveur éteint.");
             btnRunServer.setEnabled(true);
             btnStopServer.setEnabled(false);
+            rdLevenshtein.setEnabled(false);
+            rdKNN.setEnabled(false);
+        } else if (e.getSource().equals(rdLevenshtein)) { // Si c'est le bouton de sélection de la distance de Levenshtein, on l'indique au serveur
+            server.setClassificationMethod(Server.ClassificationMethod.LEVENSHTEIN);
+            taConsole.append("Méthode classfication choisie : distance de Levenshtein.\n");
+        } else if (e.getSource().equals(rdKNN)) { // Si c'est le bouton de sélection du k-NN, on l'indique au serveur
+            server.setClassificationMethod(Server.ClassificationMethod.KNN);
+            taConsole.append("Méthode classfication choisie : k-NN.\n");
         }
     }
 

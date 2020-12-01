@@ -12,7 +12,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 // Classe qui gère une connexion client/serveur
 public class SocketMessaging extends Thread {
@@ -93,12 +92,18 @@ public class SocketMessaging extends Thread {
                 } else { // Si ce n'est pas une commande
                     // A CHANGER SELON LA METHODE########################
                     // On récupère la réponse du Classifier
-                    Object[] response = Classifier.getResponse(name, line, server.getAgenda(), reservationDateTime, wasReservation);
+                    Object[] response = Classifier.getResponse(server.getGetMessageTypeFunction(), name, line, server.getAgenda(), reservationDateTime, wasReservation);
                     wasReservation = (response[0] == Classifier.MessageType.RESERVATION); // On vérifie si le dernier message était une demande de réservation
                     if (wasReservation && Boolean.parseBoolean(response[2].toString())) { // Si oui, on récupère les informations de date et heure contenue dans la réponse
-                        reservationDateTime = new String[2];
-                        reservationDateTime[0] = Agenda.getYearOfDayMonth(Integer.parseInt(response[4].toString()), Integer.parseInt(response[5].toString())) + "-" + response[5].toString() + "-" + response[4].toString();
-                        reservationDateTime[1] = response[3].toString();
+                        // On vérifie si la réservation était valide (créneau libre, pas dans le passé et pas trop loin dans le futur)
+                        if (Boolean.parseBoolean(response[6].toString())) { // Si oui, on enregistre les dates demandées
+                            reservationDateTime = new String[2];
+                            reservationDateTime[0] = Agenda.getYearOfDayMonth(Integer.parseInt(response[4].toString()), Integer.parseInt(response[5].toString())) + "-" + response[5].toString() + "-" + response[4].toString();
+                            reservationDateTime[1] = response[3].toString();
+                        } else { // Si non, on fait comme si ce n'est pas une réservation
+                            reservationDateTime = null;
+                            wasReservation = false;
+                        }
                     } else { // Sinon, on supprime les dernière infos enregistrées
                         reservationDateTime = null;
                     }

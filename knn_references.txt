@@ -1,0 +1,45 @@
+RESERVATION:J'aimerais réserver un créneau
+RESERVATION:Je voudrais un créneau
+RESERVATION:Je veux effectuer une réservation svp
+RESERVATION:Serait-il possible de réserver un horaire
+RESERVATION:Je voudrais faire une réservation
+RESERVATION:J'aimerais réserver du temps
+RESERVATION:Puis je avoir un créneau 
+RESERVATION:Je veux un créneau
+RESERVATION:Je veux faire une réservation
+RESERVATION:J'aimerais faire une réservation
+RESERVATION:rdv stp
+RESERVATION:Je voudrais un rendez-vous si possible
+RESERVATION:J'aimerais prendre rendez-vous
+RESERVATION:Je veux un rdv
+RESERVATION:Je veux un rendez-vous
+RESERVATION:créneau stp
+RESERVATION:créneau
+INFORMATION:Quels sont les créneaux occupés
+INFORMATION:Je voudrais des informations
+INFORMATION:J'aimerais la liste des créneaux vides
+INFORMATION:Quels sont les créneaux libres
+INFORMATION:Planning
+INFORMATION:Je voudrais voir le planning svp
+INFORMATION:J'aimerais avoir des informations si possible
+INFORMATION:Des informations seraient appréciées
+INFORMATION:Je veux voir le planning
+INFORMATION:Je veux connaître les disponibilités
+INFORMATION:Je veux savoir les prochains créneaux occupés
+CONFIRMATION:Oui
+CONFIRMATION:Ok
+CONFIRMATION:D'accord
+CONFIRMATION:Tout à fait
+CONFIRMATION:C'est ça
+CONFIRMATION:Exact
+CONFIRMATION:Parfait
+NEGATION:Non
+NEGATION:Pas du tout
+NEGATION:C'est faux
+NEGATION:Inexact
+GREETINGS:Salut
+GREETINGS:Salutations
+GREETINGS:Bonjour
+GREETINGS:Hello
+GREETINGS:Coucou
+GREETINGS:Enchanté

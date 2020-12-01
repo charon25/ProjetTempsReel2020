@@ -14,9 +14,12 @@ import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 // Classe qui gère la partie serveur du ChatBot
 public class Server extends Thread {
+
+    public enum ClassificationMethod {LEVENSHTEIN, KNN};
 
     private final int DAYS_COUNT = 120; // Nombre de jour de l'agenda par défaut
     private final String AGENDA_PATH = "agenda.txt"; // Chemin de sauvegarde de l'agenda
@@ -29,6 +32,9 @@ public class Server extends Thread {
     private ServerUI ui; // Interface utilisateur associée
     private Agenda agenda; // Agenda associé
     private boolean connected; // Indique si le serveur est connecté
+
+    private Function<String, Classifier.MessageType> getMessageType;
+    private EmbeddingClassifier embeddingClassifier;
 
     // ACCESSEUR
     public Agenda getAgenda() {
@@ -49,6 +55,9 @@ public class Server extends Thread {
     public ArrayList<Login> getLogins() {
         return logins;
     }
+    public Function<String, Classifier.MessageType> getGetMessageTypeFunction() {
+        return getMessageType;
+    }
 
     // Instancie le serveur avec l'interface graphique
     public Server(ServerUI ui) {
@@ -57,6 +66,8 @@ public class Server extends Thread {
         this.connections = new ArrayList<>();
         this.logins = new ArrayList<>();
         this.ui = ui;
+        // On initialise le classifier par vectorisation avec les chemins du dictionnaire et des phrases de référence du k-NN
+        this.embeddingClassifier = new EmbeddingClassifier(EmbeddingClassifier.DIC_PATH, EmbeddingClassifier.KNN_REFERENCES_PATH);
         try {
             // On essaye de créer un serveur, et si c'est bon on l'indique à l'interface
             this.server = new ServerSocket(0, 1, ipAddress);
@@ -193,6 +204,17 @@ public class Server extends Thread {
             } catch (ArrayIndexOutOfBoundsException ex) {
                 ui.receiveData("Erreur dans la syntaxe de la commande.");
             }
+        }
+    }
+
+    public void setClassificationMethod(ClassificationMethod method) {
+        switch (method) {
+            case LEVENSHTEIN:
+                getMessageType = LevenshteinClassifier::getMessageType;
+                break;
+            case KNN:
+                getMessageType = embeddingClassifier::getMessageType;
+                break;
         }
     }
 
