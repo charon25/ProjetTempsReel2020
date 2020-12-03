@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Enumeration;
 
 // Interface utilisateur du serveur
 public class ServerUI extends JFrame implements ActionListener, KeyListener {
@@ -24,6 +25,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     private ButtonGroup grpClassification;
     private JRadioButton rdLevenshtein;
     private JRadioButton rdKNN;
+    private JRadioButton rdWeighting;
 
     final private Border border = BorderFactory.createLineBorder(Color.BLACK); // Permet d'avoir une bordure noire
 
@@ -101,7 +103,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         rdLevenshtein.addActionListener(this);
         rdLevenshtein.setEnabled(false);
         add(rdLevenshtein);
-        // k-NN
+        // Plus proche voisin
         rdKNN = new JRadioButton();
         rdKNN.setBounds(10, 195, 164, 30);
         rdKNN.setText("k-NN (Vectorisation)");
@@ -109,10 +111,19 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         rdKNN.addActionListener(this);
         rdKNN.setEnabled(false);
         add(rdKNN);
+        // Voisins pondérés
+        rdWeighting = new JRadioButton();
+        rdWeighting.setBounds(10, 218, 164, 30);
+        rdWeighting.setText("Voisins pondérés");
+        rdWeighting.setSelected(false);
+        rdWeighting.addActionListener(this);
+        rdWeighting.setEnabled(false);
+        add(rdWeighting);
         // BUTTON GROUP
         grpClassification = new ButtonGroup();
         grpClassification.add(rdLevenshtein);
         grpClassification.add(rdKNN);
+        grpClassification.add(rdWeighting);
 
         // FENETRE
         setSize(562, 400);
@@ -136,8 +147,11 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
                 lblServerInfo.setText("<html>Adresse : " + server.getInetAddress() + "<br>Port : " + server.getLocalPort() + "</html>");
                 btnRunServer.setEnabled(false);
                 btnStopServer.setEnabled(true);
-                rdLevenshtein.setEnabled(true);
-                rdKNN.setEnabled(true);
+                // Parcourt tous les boutons de sélection de méthode pour tous les activer
+                for (Enumeration<AbstractButton> buttons = grpClassification.getElements() ; buttons.hasMoreElements();) {
+                    AbstractButton button = buttons.nextElement();
+                    button.setEnabled(true);
+                }
                 server.setClassificationMethod(Server.ClassificationMethod.KNN);
             }
         } else if (e.getSource().equals(btnStopServer)) { // Si c'est le bouton pour stopper le serveur, on l'arrête
@@ -145,14 +159,20 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
             lblServerInfo.setText("Serveur éteint.");
             btnRunServer.setEnabled(true);
             btnStopServer.setEnabled(false);
-            rdLevenshtein.setEnabled(false);
-            rdKNN.setEnabled(false);
+            // Parcourt tous les boutons de sélection de méthode pour tous les désactiver
+            for (Enumeration<AbstractButton> buttons = grpClassification.getElements() ; buttons.hasMoreElements();) {
+                AbstractButton button = buttons.nextElement();
+                button.setEnabled(false);
+            }
         } else if (e.getSource().equals(rdLevenshtein)) { // Si c'est le bouton de sélection de la distance de Levenshtein, on l'indique au serveur
             server.setClassificationMethod(Server.ClassificationMethod.LEVENSHTEIN);
-            taConsole.append("Méthode classfication choisie : distance de Levenshtein.\n");
+            taConsole.append("Méthode de classification choisie : distance de Levenshtein.\n");
         } else if (e.getSource().equals(rdKNN)) { // Si c'est le bouton de sélection du k-NN, on l'indique au serveur
             server.setClassificationMethod(Server.ClassificationMethod.KNN);
-            taConsole.append("Méthode classfication choisie : k-NN.\n");
+            taConsole.append("Méthode de classification choisie : k-NN.\n");
+        } else if (e.getSource().equals(rdWeighting)) {
+            server.setClassificationMethod(Server.ClassificationMethod.WEIGHTING);
+            taConsole.append("Méthode de classification choisie : voisins pondérés");
         }
     }
 

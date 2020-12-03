@@ -19,7 +19,7 @@ import java.util.function.Function;
 // Classe qui gère la partie serveur du ChatBot
 public class Server extends Thread {
 
-    public enum ClassificationMethod {LEVENSHTEIN, KNN};
+    public enum ClassificationMethod {LEVENSHTEIN, KNN, WEIGHTING};
 
     private final int DAYS_COUNT = 120; // Nombre de jour de l'agenda par défaut
     private final String AGENDA_PATH = "agenda.txt"; // Chemin de sauvegarde de l'agenda
@@ -213,7 +213,10 @@ public class Server extends Thread {
                 getMessageType = LevenshteinClassifier::getMessageType;
                 break;
             case KNN:
-                getMessageType = embeddingClassifier::getMessageType;
+                getMessageType = embeddingClassifier::getMessageTypeByClosestNeighbor;
+                break;
+            case WEIGHTING:
+                getMessageType = embeddingClassifier::getMessageTypeByWeighting;
                 break;
         }
     }

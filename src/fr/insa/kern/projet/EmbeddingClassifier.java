@@ -117,8 +117,8 @@ public class EmbeddingClassifier {
         return result;
     }
 
-    // Calcule un k-NN avec les phrases de référence
-    public Classifier.MessageType getMessageType(String message) {
+    // Renvoie le type du voisin le plus proche du message dans l'espace vectorisé (k-NN à un seul voisin)
+    public Classifier.MessageType getMessageTypeByClosestNeighbor(String message) {
         // TreeMap triée par ordre décroissant, qui va permettre de savoir quelles phrases sont les plus similaires (plus la similarité cosinus est grande, plus elles sont similaires)
         Map<Double, Classifier.MessageType> points = new TreeMap<>(new Comparator<Double>() {
             @Override
@@ -139,43 +139,38 @@ public class EmbeddingClassifier {
             }
         }
 
-        // On va ensuite compter combien de fois chaque type apparait dans les plus proches voisins
-        int compteur = 0;
-        Map<Classifier.MessageType, Integer> counts = new HashMap<>(); // HashMap qui contient le nombre d'apparition de chaque type
-        double previousDistance = -2;
-        for (Map.Entry<Double, Classifier.MessageType> point : points.entrySet()) {
-            System.out.println(point.getValue() + " : " + point.getKey());
-            compteur++;
-            if (compteur > 5) break;
-        }
+        // On renvoie ensuite le plus proche voisin
         return points.entrySet().iterator().next().getValue();
-        /*for (Map.Entry<Double, Classifier.MessageType> point : points.entrySet()) {
-            System.out.println(point.getValue() + " : " + point.getKey());
-            // On récupère le nombre d'occurence du type s'il est déjà dedans, et 0 sinon
-            int n = counts.containsKey(point.getValue()) ? counts.get(point.getValue()) : 0;
-            counts.put(point.getValue(), n + 1); // On ajoute (ou met à jour) le type avec le nouveau nombre d'occurences
-            if (previousDistance >= -1 && Math.abs(point.getKey() - previousDistance) <= 0.00000001) {
-                knn_offset++;
-            }
-            previousDistance = point.getKey();
-            compteur++;
-            if (compteur == KNN_RANGE + knn_offset) { // Si on a atteint la limite du nombre de voisins pris en compte, on sort de la boucle
-                break;
+    }
+
+    // Renvoie le type dont la similarité est la plus grande sur toutes les phrases de référence
+    public Classifier.MessageType getMessageTypeByWeighting(String message) {
+        // Contient la similarité entre le message et chaque type de référence sous forme de la somme des similarités
+        Map<Classifier.MessageType, Double> points = new HashMap<>();
+
+        double[] messageEmbedding = getSentenceEmbedding(message); // On calcule la vectorisation du message
+        int knn_offset = 0;
+        for (Map.Entry<Classifier.MessageType, ArrayList<double[]>> reference : references.entrySet()) { // On parcourt tous les types possibles
+            for (int i = 0; i < reference.getValue().size(); i++) { // Pour chaque type, on parcourt toutes les vectorisations associées
+                double similarity = cosineSimilarity(messageEmbedding, reference.getValue().get(i)); // On calcule la similarité pour toutes ces combinaisons
+                if (!points.containsKey(reference.getKey())) { // Si on a pas déjà ajouté le type, on le fait
+                    points.put(reference.getKey(), 0.0);
+                }
+                // On ajoute ensuite la similarité à la somme des similarités de ce type de message
+                points.put(reference.getKey(), points.get(reference.getKey()) + similarity);
             }
         }
 
-        // On va ensuite récupérer le type le plus présent
-        int max = Integer.MIN_VALUE;
-        Classifier.MessageType output = Classifier.MessageType.OTHER; // Par défaut, on prend le type "Autres"
-        for (Map.Entry<Classifier.MessageType, Integer> count : counts.entrySet()) {
-            System.out.println(count.getKey() + " : " + count.getValue());
-            if (count.getValue() > max) { // Si le compte de ce type est supérieur (strict) au précédent, ça devient le nouveau type
-                max = count.getValue();
-                output = count.getKey();
+        // On va ensuite chercher le type de message avec la plus forte similarité (ramenée au nombre de phrases de référence de chque type=
+        double maxSimilarity = Double.MIN_VALUE;
+        Classifier.MessageType maxSimilarityType = Classifier.MessageType.OTHER;
+        for (Map.Entry<Classifier.MessageType, Double> point : points.entrySet()) {
+            if (point.getValue() / (double)references.get(point.getKey()).size() > maxSimilarity) {
+                maxSimilarity = point.getValue() / (double)references.get(point.getKey()).size();
+                maxSimilarityType = point.getKey();
             }
         }
-
-        return output;*/
+        return maxSimilarityType;
     }
 
 }
