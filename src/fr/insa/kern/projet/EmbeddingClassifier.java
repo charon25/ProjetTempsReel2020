@@ -1,6 +1,5 @@
 package fr.insa.kern.projet;
 
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,12 +13,12 @@ public class EmbeddingClassifier {
     public static final String KNN_REFERENCES_PATH = "knn_references.txt";
 
     private int embedding_size; // Taille des vecteurs
-    private final Map<String, Vector> embeddings; // HashMap des vecteurs de chaque mot
+    private final Embedding embedding; // Embedding de notre dictionnaire
     private Map<Classifier.MessageType, ArrayList<Vector>> references; // HashMap de vectorisation des phrases de références
 
     // Instancie la classe avec le chemin du dictionnaire de vectorisation et du fichier contenant les phrases de référence
     public EmbeddingClassifier(String dicPath, String referencePath) {
-        embeddings = new HashMap<>();
+        embedding = new Embedding();
         try {
             FileReader reader;
             // On lit le dictionnaire ligne par ligne
@@ -37,7 +36,7 @@ public class EmbeddingClassifier {
                     for (int i = 0; i < embedding_size; i++) {
                         values[i] = Double.parseDouble(args[i + 1]);
                     }
-                    embeddings.put(args[0].toLowerCase(), new Vector(values)); // On ajoute le mot à la HashMap
+                    embedding.addWord(args[0].toLowerCase(), new Vector(values)); // On ajoute le mot à la HashMap
                 }
             }
 
@@ -53,37 +52,17 @@ public class EmbeddingClassifier {
                     references.put(Classifier.MessageType.valueOf(args[0]), new ArrayList<>());
                 }
                 // On calcule la vectorisation de la phrase et on l'ajoute à la liste associée au type
-                references.get(Classifier.MessageType.valueOf(args[0])).add(getSentenceEmbedding(args[1]));
+                references.get(Classifier.MessageType.valueOf(args[0])).add(embedding.getSentenceEmbedding(args[1]));
             }
 
         } catch (IOException e) {}
-    }
-
-    // Renvoie la vectorisation d'un mot. S'il n'est pas dans la liste, on renvoie un vecteur nul
-    private Vector getWordEmbedding(String word) {
-        if (embeddings.containsKey(word)) {
-            return embeddings.get(word);
-        } else {
-            return Vector.nullVector(embedding_size);
-        }
-    }
-    // Calcule la vectorisation d'une phrase comme la moyenne des vectorisations des mots qui la constitue
-    private Vector getSentenceEmbedding(String sentence) {
-        sentence = Classifier.formatMessage(sentence); // On formate la phrase pour enlever les prépositions, les majuscules, la ponctuation
-        int word_count = sentence.split(" ").length; // On compte combien on a de mots dedans
-        Vector result = Vector.nullVector(embedding_size);
-        for (String word : sentence.split(" ")) { // On parcourt tous les mots et on fait la somme de leur vectorisation
-            result = result.add(getWordEmbedding(word));
-        }
-        result = result.divideByConstant(word_count);
-        return result;
     }
 
     // Renvoie le type du voisin le plus proche du message dans l'espace vectorisé (k-NN à un seul voisin)
     public Classifier.MessageType getMessageTypeByClosestNeighbor(String message) {
         // TreeMap triée par ordre décroissant, qui va permettre de savoir quelles phrases sont les plus similaires (plus la similarité cosinus est grande, plus elles sont similaires)
         Map<Double, Classifier.MessageType> points = new TreeMap<>(Comparator.reverseOrder());
-        Vector messageEmbedding = getSentenceEmbedding(message); // On calcule la vectorisation du message
+        Vector messageEmbedding = embedding.getSentenceEmbedding(message); // On calcule la vectorisation du message
         for (Map.Entry<Classifier.MessageType, ArrayList<Vector>> reference : references.entrySet()) { // On parcourt tous les types possibles
             for (int i = 0; i < reference.getValue().size(); i++) { // Pour chaque type, on parcourt toutes les vectorisations associées
                 double similarity = messageEmbedding.cosineSimilarity(reference.getValue().get(i)); // On calcule la similarité pour toutes ces combinaisons
@@ -105,7 +84,7 @@ public class EmbeddingClassifier {
         // Contient la similarité entre le message et chaque type de référence sous forme de la somme des similarités
         Map<Classifier.MessageType, Double> points = new HashMap<>();
 
-        Vector messageEmbedding = getSentenceEmbedding(message); // On calcule la vectorisation du message
+        Vector messageEmbedding = embedding.getSentenceEmbedding(message); // On calcule la vectorisation du message
         for (Map.Entry<Classifier.MessageType, ArrayList<Vector>> reference : references.entrySet()) { // On parcourt tous les types possibles
             for (int i = 0; i < reference.getValue().size(); i++) { // Pour chaque type, on parcourt toutes les vectorisations associées
                 double similarity = messageEmbedding.cosineSimilarity(reference.getValue().get(i)); // On calcule la similarité pour toutes ces combinaisons

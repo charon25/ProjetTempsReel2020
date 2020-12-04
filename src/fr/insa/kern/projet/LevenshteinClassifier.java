@@ -95,6 +95,4 @@ public class LevenshteinClassifier {
         return d[word1.length()][word2.length()];
     }
 
-
-
 }
