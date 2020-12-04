@@ -13,9 +13,7 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
@@ -23,14 +21,14 @@ import java.security.NoSuchAlgorithmException;
 public class Client {
 
     private final String ipAddress; // Adresse IP du serveur
-    private int port; // Port du serveur
-    private String username; // Nom du client
-    private String password; // Mot de passe du client
+    private final int port; // Port du serveur
+    private final String username; // Nom du client
+    private final String password; // Mot de passe du client
     private BufferedReader in; // Buffer de lecture
     private PrintWriter out; // Buffer d'écriture
     private Socket socket; // Socket de connexion
     private boolean connected; // Indique si le client est connecté
-    private ClientUI ui; // Interface graphique associée
+    private final ClientUI ui; // Interface graphique associée
 
     // ACCESSEURS
     public String getIpAddress() {

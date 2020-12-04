@@ -5,11 +5,9 @@
  */
 package fr.insa.kern.projet;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +50,7 @@ public class Login {
     // Méthode statique qui permet de hasher un mot de passe avec l'alhorithme SHA-256, qui renvoie un tableau de Byte qu'on convertit en String
     public static String getHashString(String str) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hashedPassword = digest.digest(str.getBytes(Charset.forName("UTF-8")));
+        byte[] hashedPassword = digest.digest(str.getBytes(StandardCharsets.UTF_8));
         StringBuilder s = new StringBuilder();
         for (byte b : hashedPassword) {
             s.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));

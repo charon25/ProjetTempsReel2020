@@ -59,7 +59,7 @@ public class ClientUI extends JFrame implements ActionListener, KeyListener {
         lblAddress.setBounds(12, 12, 100, 13);
         add(lblAddress);
         // INPUT ADRESSE IP
-        tfAddress = new JTextField("192.168.56.1");
+        tfAddress = new JTextField("192.168.0.10");
         tfAddress.setBounds(12, 28, 164, 20);
         add(tfAddress);
 

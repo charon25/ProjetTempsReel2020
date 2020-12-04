@@ -126,9 +126,9 @@ public class Classifier {
             case INFORMATION: // Si il demande des informations, on récupère tous les créneaux et on les affiche
                 String information = "";
                 ArrayList<Agenda.Slot> slots = agenda.getAllBookedSlots();
-                for (int i = 0; i < slots.size(); i++) {
+                for (Agenda.Slot slot : slots) {
                     // Les caractères "// " indique un retour à la ligne
-                    information += slots.get(i).getSlotString() + (slots.get(i).getUser().equals(user) ? " par vous" : "") + " ;// ";
+                    information += slot.getSlotString() + (slot.getUser().equals(user) ? " par vous" : "") + " ;// ";
                 }
                 output = new Object[2];
                 output[0] = MessageType.INFORMATION;
@@ -182,7 +182,7 @@ public class Classifier {
 
         // ***Date
         // Permet de récupérer un pattern de type "12/05" ou "28 décembre"
-        Pattern datePattern = Pattern.compile("(([0-3]?[0-9])\\/([01]?[0-9]))|(([0-3]?[0-9]) ?(jan|fev|fév|mar|avr|mai|juin|juil|aout|août|sept|oct|nov|dec|déc))");
+        Pattern datePattern = Pattern.compile("(([0-3]?[0-9])/([01]?[0-9]))|(([0-3]?[0-9]) ?(jan|fev|fév|mar|avr|mai|juin|juil|aout|août|sept|oct|nov|dec|déc))");
         Matcher dateMatcher = datePattern.matcher(message);
         boolean hasDate = dateMatcher.find();
         int day = -1, month = -1;

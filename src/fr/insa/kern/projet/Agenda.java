@@ -53,7 +53,7 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
             FileReader reader = new FileReader(path);
             BufferedReader bufferedReader = new BufferedReader(reader);
             String line;
-            ArrayList<Day> days = new ArrayList<Day>();
+            ArrayList<Day> days = new ArrayList<>();
             // Pour chaque ligne on ajoute un nouveau jour
             while ((line = bufferedReader.readLine()) != null) {
                 days.add(new Day(line));
@@ -95,11 +95,11 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     // Renvoie l'ensemble des créneaux réservés par un utilisateur donnée. Non utilisée pour l'instant
     public ArrayList<Slot> getSlotsByUser(String user) {
         ArrayList<Slot> slots = new ArrayList<>();
-        for (int i = 0; i < days.length; i++) { // On parcourt tous les jours
-            for (int j = 0; j < days[i].getSlots().length; j++) { // On parcourt tous les créneaux de chaque jour
+        for (Day day : days) { // On parcourt tous les jours
+            for (int j = 0; j < day.getSlots().length; j++) { // On parcourt tous les créneaux de chaque jour
                 // Si le créneau a été réservé, et par la bonne personne, alors on l'ajoute
-                if (days[i].getSlots()[j] != null && days[i].getSlots()[j].getUser().equals(user)) {
-                    slots.add(days[i].getSlots()[j]);
+                if (day.getSlots()[j] != null && day.getSlots()[j].getUser().equals(user)) {
+                    slots.add(day.getSlots()[j]);
                 }
             }
         }
@@ -109,10 +109,10 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     // Renvoie l'ensemble des créneaux réservés
     public ArrayList<Slot> getAllBookedSlots() {
         ArrayList<Slot> slots = new ArrayList<>();
-        for (int i = 0; i < days.length; i++) { // On parcourt tous les jours
-            for (int j = 0; j < days[i].getSlots().length; j++) { // On parcourt tous les créneaux de chaque jour
-                if (days[i].getSlots()[j] != null) { // Si le créneau a été réservé
-                    slots.add(days[i].getSlots()[j]);
+        for (Day day : days) { // On parcourt tous les jours
+            for (int j = 0; j < day.getSlots().length; j++) { // On parcourt tous les créneaux de chaque jour
+                if (day.getSlots()[j] != null) { // Si le créneau a été réservé
+                    slots.add(day.getSlots()[j]);
                 }
             }
         }
@@ -150,8 +150,8 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     // Enregistre l'agenda au chemin fourni
     public void save(String path) {
         String output = ""; // String qui contiendra la sortie
-        for (int i = 0; i < days.length; i++) {
-            output += days[i].toString() + "\n"; // On ajoute chaque jour
+        for (Day day : days) {
+            output += day.toString() + "\n"; // On ajoute chaque jour
         }
         try { // On l'écrit dans le chemin adapté
             FileWriter writer = new FileWriter(path);
@@ -201,9 +201,9 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
                 this.slots = new Slot[SLOT_COUNT];
                 if (dayString.contains(":")) { // On vérifie qu'il y a des créneaux enregistrés, si non on ne fait rien
                     String[] loadedSlots = dayString.split(":")[1].split(","); // On coupe selon ",", qui sépare les créneaux
-                    for (int i = 0; i < loadedSlots.length; i++) {
+                    for (String loadedSlot : loadedSlots) {
                         // On récupère les différents morceaux, dans l'ordre : heure, utilisateur, date de la réservation
-                        args = loadedSlots[i].split("/");
+                        args = loadedSlot.split("/");
                         this.slots[Integer.parseInt(args[0])] = new Slot(args[1], Integer.parseInt(args[0]), Long.parseLong(args[2]), this.date);
                     }
                 }
@@ -224,7 +224,7 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
 
         // Renvoie l'index selon l'heure
         private int getIndexFromHour(int hour) {
-            return (int) ((hour - 8) / 2);
+            return ((hour - 8) / 2);
         }
 
         // Renvoie la date de l'instance
@@ -263,10 +263,10 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     // Classe qui permet de gérer un créneau
     public class Slot {
 
-        private String user; // Utilisateur ayant réservé le créneau
-        private Calendar day; // Jour du créneau
-        private Calendar reservationDate; // Date de la réservation
-        private int hour; // Heure du créneau
+        private final String user; // Utilisateur ayant réservé le créneau
+        private final Calendar day; // Jour du créneau
+        private final Calendar reservationDate; // Date de la réservation
+        private final int hour; // Heure du créneau
 
         // Instancie un créneau avec un utilisateur, un jour et une heure
         public Slot(String user, Calendar day, int hour) {
@@ -308,7 +308,7 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
 
         // Renvoie la version String du créneau pour l'enregistrement dans un fichier
         public String toString() {
-            return String.valueOf(hour) + "/" + user + "/" + reservationDate.getTimeInMillis();
+            return hour + "/" + user + "/" + reservationDate.getTimeInMillis();
         }
 
         // Ajoute des "0" à gauche du nombre pour atteindre la longueur demandée

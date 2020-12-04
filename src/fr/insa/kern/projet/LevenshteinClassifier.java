@@ -1,7 +1,5 @@
 package fr.insa.kern.projet;
 
-import java.util.regex.*;
-
 //Classe qui permet de faire une classification des messages reçus grâce à la distance de Levenshtein
 public class LevenshteinClassifier {
 

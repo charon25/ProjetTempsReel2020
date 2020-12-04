@@ -19,17 +19,17 @@ import java.util.function.Function;
 // Classe qui gère la partie serveur du ChatBot
 public class Server extends Thread {
 
-    public enum ClassificationMethod {LEVENSHTEIN, KNN, WEIGHTING};
+    public enum ClassificationMethod {LEVENSHTEIN, KNN, WEIGHTING}
 
     private final int DAYS_COUNT = 120; // Nombre de jour de l'agenda par défaut
     private final String AGENDA_PATH = "agenda.txt"; // Chemin de sauvegarde de l'agenda
     private final String USERS_PATH = "users.txt"; // Chemin de sauvegarde des utilisateurs
 
-    private Inet4Address ipAddress; // Adresse IP
+    private final Inet4Address ipAddress; // Adresse IP
     private ServerSocket server; // Socket contenant le serveur
-    private ArrayList<SocketMessaging> connections; // Liste des connexions actives
-    private ArrayList<Login> logins; // Liste de tous les logins
-    private ServerUI ui; // Interface utilisateur associée
+    private final ArrayList<SocketMessaging> connections; // Liste des connexions actives
+    private final ArrayList<Login> logins; // Liste de tous les logins
+    private final ServerUI ui; // Interface utilisateur associée
     private Agenda agenda; // Agenda associé
     private boolean connected; // Indique si le serveur est connecté
 
@@ -89,10 +89,6 @@ public class Server extends Thread {
     public void run() {
         loadUsers();
         loadAgenda();
-        Agenda.Day days[] = agenda.days;
-        for (Agenda.Slot s : days[31].getSlots()) {
-            System.out.println(s);
-        }
         acceptConnections();
     }
 
@@ -143,8 +139,7 @@ public class Server extends Thread {
                 FileReader reader = new FileReader(AGENDA_PATH);
                 BufferedReader bufferedReader = new BufferedReader(reader);
                 int lineCount = 0;
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
+                while (bufferedReader.readLine() != null) {
                     lineCount++;
                 }
                 reader.close();
@@ -192,14 +187,13 @@ public class Server extends Thread {
             try {
                 message = message.substring(2); // On retire ::
                 String[] args = message.split(" "); // On découpe selon les espaces
-                switch (args[0]) { // Selon l'instruction de la commande, on effectue différentes actions
-                    // Commande pour créer un nouveau login : ::new-user <nom d'utilisateur> <mot de passe>
-                    case "new-user": // Si la commande est "new-user", on crée un nouvel utilisateur avec les deux autres arguments
-                        createUser(args[1], args[2]);
-                        ui.receiveData("Utilisateur \"" + args[1] + "\" correctement ajouté !");
-                        break;
-                    default:
-                        ui.receiveData("Commande inconnue.");
+                // Selon l'instruction de la commande, on effectue différentes actions
+                // Commande pour créer un nouveau login : ::new-user <nom d'utilisateur> <mot de passe>
+                if ("new-user".equals(args[0])) { // Si la commande est "new-user", on crée un nouvel utilisateur avec les deux autres arguments
+                    createUser(args[1], args[2]);
+                    ui.receiveData("Utilisateur \"" + args[1] + "\" correctement ajouté !");
+                } else {
+                    ui.receiveData("Commande inconnue.");
                 }
             } catch (ArrayIndexOutOfBoundsException ex) {
                 ui.receiveData("Erreur dans la syntaxe de la commande.");

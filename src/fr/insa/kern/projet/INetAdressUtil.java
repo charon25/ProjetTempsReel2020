@@ -25,8 +25,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Quelques utilitaire liés à la gestion des adresses IP.
@@ -53,7 +51,7 @@ public class INetAdressUtil {
      * @throws SocketException
      */
     private static List<Inet4Address> getInet4Addresses() throws SocketException {
-        List<Inet4Address> ret = new ArrayList<Inet4Address>();
+        List<Inet4Address> ret = new ArrayList<>();
 
         Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
         while (nets.hasMoreElements()) {
