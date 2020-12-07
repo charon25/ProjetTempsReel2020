@@ -1,4 +1,4 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.classifying;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,4 +1,6 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.classifying;
+
+import fr.insa.kern.projet.agenda.*;
 
 import java.util.ArrayList;
 import java.util.function.Function;
@@ -25,7 +27,8 @@ public class Classifier {
     private static final String ANSWER_CONFIRMATION_FAILED = "Une erreur est survenue. Merci de vérifier que le créneau est libre.";
     private static final String ANSWER_CONFIRMATION = "Créneau correctement réservé.";
     private static final String ANSWER_NEGATION = "Demande annulée.";
-    private static final String ANSWER_INFORMATION = "Les créneaux déjà occupés sont : // %info%";
+    private static final String ANSWER_INFORMATION = "Réservation possible tous les jours jusqu'au %maxdate% de 8h à 16h par créneau de 2h. //Les créneaux déjà occupés sont : //%info%";
+    private static final String ANSWER_INFORMATION_EMPTY = "Réservation possible tous les jours jusqu'au %maxdate% de 8h à 16h par créneau de 2h. //Tous les créneaux sont disponibles.";
     private static final String ANSWER_OTHER = "Impossible de comprendre le message. Merci de le reformuler et de le renvoyer.";
 
     // Renvoie la réponse dans un tableau d'objet qui contient les infos suivantes (taille minimum 2, optionnelle jusqu'à 6) :
@@ -44,105 +47,137 @@ public class Classifier {
     // reservationDateTime : tableau de string format {"yyyy-mm-dd", h} (mois de 0 à 11)
     // previousIsReservation : true si la demande précédente était un rdv
     public static Object[] getResponse(Function<String, MessageType> getMessageType, String user, String message, Agenda agenda, String[] reservationDateTime, boolean previousIsReservation) {
-        Object[] output;
         // On met en forme le message
         message = formatMessage(message);
+
         // On récupère le type de message
         MessageType type = getMessageType.apply(message);
+
         // Si le précédent message était un de réservation et que le message actuel contient des informations de date et heure
         // alors on considère que ce message aussi est de réservation
+        // Utilisé dans le cas où le message précédent demandait une réservation sans préciser de date et d'heure
         if (previousIsReservation && extractDateTime(message)[0] == 1) {
             type = MessageType.RESERVATION;
         }
+
         // Si le message précédent n'était pas de réservation, alors les message d'approbation et de négation sont considérés comme du bruit
         if (!previousIsReservation && (type == MessageType.NEGATION || type == MessageType.CONFIRMATION)) {
             type = MessageType.OTHER;
         }
 
-        switch (type) { // Selon le type de message
+        switch (type) { // Selon le type du message
             case GREETINGS: // Si ce sont des salutations, on en renvoie
-                output = new Object[2];
-                output[0] = MessageType.GREETINGS;
-                output[1] = ANSWER_GREETING;
-                break;
+                return greetingsResponse();
             case RESERVATION: // Si c'est une réservation
-                int[] dateTime = extractDateTime(message); // On essaye d'extraire les informations de date et heure
-                // Les informations de dateTime sont : 0 = infos trouvées (-1 ou 1), 1 = heure, 2 = jour, 3 = mois (de 0 à 11)
-                if (dateTime[0] == 1) { // Si on a pu extraire les infos correctement
-                    // On vérifie si le créneau est disponible
-                    System.out.println(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2] + "/" + dateTime[1]);
-                    Agenda.Availability availability = agenda.isSlotAvailable(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2], dateTime[1], true);
-                    System.out.println(availability);
-                    output = new Object[7];
-                    output[0] = MessageType.RESERVATION;
-                    switch (availability) { // Selon l'état du créneau souhaité, on répond différent message
-                        case ALREADY_BOOKED:
-                            output[1] = ANSWER_RESERVATION_ERRORS[2];
-                            output[6] = false;
-                            break;
-                        case PAST:
-                            output[1] = ANSWER_RESERVATION_ERRORS[1];
-                            output[6] = false;
-                            break;
-                        case TOO_FAR:
-                            output[1] = ANSWER_RESERVATION_ERRORS[0];
-                            output[6] = false;
-                            break;
-                        default: // Si le créneau est disponible
-                            output[1] = ANSWER_RESERVATION.replace("%day%", Integer.toString(dateTime[2])).replace("%month%", MONTHS[dateTime[3]]).replace("%hourStart%", Integer.toString(dateTime[1])).replace("%hourEnd%", Integer.toString(dateTime[1] + 2));
-                            output[6] = true;
-                    }
-                    // On écrit les informations de date et heure et on indique que ça a marché (output[2])
-                    output[2] = true;
-                    output[3] = dateTime[1];
-                    output[4] = dateTime[2];
-                    output[5] = dateTime[3];
-                } else { // Si on n'a pas pu les extraire, on prévient l'utilisateur
-                    output = new Object[3];
-                    output[0] = MessageType.RESERVATION;
-                    output[1] = ANSWER_RESERVATION_MISSING;
-                    output[2] = false;
-                }
-                break;
+                return reservationReponse(agenda, message);
             case CONFIRMATION: // Si le message est un message de confirmation (et que le précédent était donc de réservation)
-                // On essaye de réserver le créneau, et on sauvegarde l'état
-                boolean booked = agenda.bookSlot(user, reservationDateTime[0], Integer.parseInt(reservationDateTime[1]), true);
-                output = new Object[3];
-                output[0] = MessageType.CONFIRMATION;
-                // On dit à l'utilisateur si ça a marché ou non, et on l'indique dans output[2]
-                if (booked) {
-                    output[1] = ANSWER_CONFIRMATION;
-                    output[2] = true;
-                } else {
-                    output[1] = ANSWER_CONFIRMATION_FAILED;
-                    output[2] = false;
-                }
-                break;
+                return confirmationResponse(agenda, user, reservationDateTime);
             case NEGATION: // Si l'utilisateur annule
-                output = new Object[2];
-                output[0] = MessageType.NEGATION;
-                output[1] = ANSWER_NEGATION;
-                break;
+                return negationResponse();
             case INFORMATION: // Si il demande des informations, on récupère tous les créneaux et on les affiche
-                String information = "";
-                ArrayList<Agenda.Slot> slots = agenda.getAllBookedSlots();
-                for (Agenda.Slot slot : slots) {
-                    // Les caractères "// " indique un retour à la ligne
-                    information += slot.getSlotString() + (slot.getUser().equals(user) ? " par vous" : "") + " ;// ";
-                }
-                output = new Object[2];
-                output[0] = MessageType.INFORMATION;
-                output[1] = ANSWER_INFORMATION.replace("%info%", information);
-                break;
+                return informationResponse(agenda, user);
             default: // Si le message n'a pas été reconnu, on répond qu'on n'a pas compris
-                output = new Object[2];
-                output[0] = MessageType.OTHER;
-                output[1] = ANSWER_OTHER;
+                return defaultResponse();
         }
+    }
 
+    // Les fonctions ci-dessous renvoient les informations nécessaires au serveur selon le type du message
+    private static Object[] greetingsResponse() {
+        Object[] output = new Object[2];
+        output[0] = MessageType.GREETINGS;
+        output[1] = ANSWER_GREETING;
+        return output;
+    }
+    private static Object[] reservationReponse(Agenda agenda, String message) {
+        int[] dateTime = extractDateTime(message); // On essaye d'extraire les informations de date et heure
+        // Les informations de dateTime sont : 0 = infos trouvées (-1 ou 1), 1 = heure, 2 = jour, 3 = mois (de 0 à 11)
+        if (dateTime[0] == 1) { // Si on a pu extraire les infos correctement
+            // On vérifie si le créneau est disponible
+            System.out.println(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2] + "/" + dateTime[1]);
+            Agenda.Availability availability = agenda.isSlotAvailable(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2], dateTime[1], true);
+            System.out.println(availability);
+            Object[] output = new Object[7];
+            output[0] = MessageType.RESERVATION;
+            switch (availability) { // Selon l'état du créneau souhaité, on répond différent message
+                case ALREADY_BOOKED:
+                    output[1] = ANSWER_RESERVATION_ERRORS[2];
+                    output[6] = false;
+                    break;
+                case PAST:
+                    output[1] = ANSWER_RESERVATION_ERRORS[1];
+                    output[6] = false;
+                    break;
+                case TOO_FAR:
+                    output[1] = ANSWER_RESERVATION_ERRORS[0];
+                    output[6] = false;
+                    break;
+                default: // Si le créneau est disponible
+                    output[1] = ANSWER_RESERVATION.replace("%day%", Integer.toString(dateTime[2])).replace("%month%", MONTHS[dateTime[3]]).replace("%hourStart%", Integer.toString(dateTime[1])).replace("%hourEnd%", Integer.toString(dateTime[1] + 2));
+                    output[6] = true;
+            }
+            // On écrit les informations de date et heure et on indique que ça a marché (output[2])
+            output[2] = true;
+            output[3] = dateTime[1];
+            output[4] = dateTime[2];
+            output[5] = dateTime[3];
+            return output;
+        } else { // Si on n'a pas pu les extraire, on prévient l'utilisateur
+            Object[] output = new Object[3];
+            output[0] = MessageType.RESERVATION;
+            output[1] = ANSWER_RESERVATION_MISSING;
+            output[2] = false;
+            return output;
+        }
+    }
+    private static Object[] confirmationResponse(Agenda agenda, String user, String[] reservationDateTime) {
+        // On essaye de réserver le créneau, et on sauvegarde l'état
+        boolean booked = agenda.bookSlot(user, reservationDateTime[0], Integer.parseInt(reservationDateTime[1]), true);
+        Object[] output = new Object[3];
+        output[0] = MessageType.CONFIRMATION;
+        // On dit à l'utilisateur si ça a marché ou non, et on l'indique dans output[2]
+        if (booked) {
+            output[1] = ANSWER_CONFIRMATION;
+            output[2] = true;
+        } else {
+            output[1] = ANSWER_CONFIRMATION_FAILED;
+            output[2] = false;
+        }
+        return output;
+    }
+    private static Object[] negationResponse() {
+        Object[] output = new Object[2];
+        output[0] = MessageType.NEGATION;
+        output[1] = ANSWER_NEGATION;
+        return output;
+    }
+    private static Object[] informationResponse(Agenda agenda, String user) {
+        String information = "";
+        ArrayList<Slot> slots = agenda.getAllBookedSlots();
+        String lastAvailableDay = agenda.getLastAvailableDay();
+        if (slots.size() == 0) {
+            Object[] output = new Object[2];
+            output[0] = MessageType.INFORMATION;
+            output[1] = ANSWER_INFORMATION_EMPTY.replace("%maxdate%", lastAvailableDay);
+            return output;
+        } else {
+            for (Slot slot : slots) {
+                // Les caractères "// " indique un retour à la ligne
+                information += slot.getSlotString() + (slot.getUser().equals(user) ? " par vous" : "") + " ;//";
+            }
+            Object[] output = new Object[2];
+            output[0] = MessageType.INFORMATION;
+            output[1] = ANSWER_INFORMATION.replace("%info%", information).replace("%maxdate%", lastAvailableDay);
+            return output;
+        }
+    }
+    private static Object[] defaultResponse() {
+        Object[] output = new Object[2];
+        output[0] = MessageType.OTHER;
+        output[1] = ANSWER_OTHER;
         return output;
     }
 
+    // Renvoie le message formaté : on enlève la ponctuation et les mots à supprimer (prépositions, déterminants, ...)
     public static String formatMessage(String message) {
         // On met le message en minuscule
         message = message.toLowerCase();

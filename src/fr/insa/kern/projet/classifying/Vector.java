@@ -1,4 +1,4 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.classifying;
 
 
 // Classe d'encapsulation d'un vecteur représentant un mot

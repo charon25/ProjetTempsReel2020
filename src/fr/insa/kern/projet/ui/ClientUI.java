@@ -1,4 +1,6 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.ui;
+
+import fr.insa.kern.projet.Client;
 
 import javax.swing.*;
 import javax.swing.border.Border;

@@ -5,6 +5,9 @@
  */
 package fr.insa.kern.projet;
 
+import fr.insa.kern.projet.agenda.Agenda;
+import fr.insa.kern.projet.classifying.Classifier;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -106,10 +109,6 @@ public class SocketMessaging extends Thread {
                         }
                     } else { // Sinon, on supprime les dernière infos enregistrées
                         reservationDateTime = null;
-                    }
-                    // Si la dernière réponse est une confirmation valide, alors on enregistre l'agenda (qui vient d'être modifié)
-                    if (response[0] == Classifier.MessageType.CONFIRMATION && Boolean.parseBoolean(response[2].toString())) {
-                        server.saveAgenda();
                     }
                     // Dans tous les cas on répond ce qui a été renvoyé par le Classifier
                     sendMessage(response[1].toString());

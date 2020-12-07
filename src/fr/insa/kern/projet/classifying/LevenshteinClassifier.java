@@ -1,4 +1,6 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.classifying;
+
+import fr.insa.kern.projet.classifying.Classifier;
 
 //Classe qui permet de faire une classification des messages reçus grâce à la distance de Levenshtein
 public class LevenshteinClassifier {

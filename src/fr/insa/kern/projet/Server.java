@@ -5,6 +5,10 @@
  */
 package fr.insa.kern.projet;
 
+import fr.insa.kern.projet.agenda.Agenda;
+import fr.insa.kern.projet.classifying.*;
+import fr.insa.kern.projet.ui.ServerUI;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -189,9 +193,12 @@ public class Server extends Thread {
                 String[] args = message.split(" "); // On découpe selon les espaces
                 // Selon l'instruction de la commande, on effectue différentes actions
                 // Commande pour créer un nouveau login : ::new-user <nom d'utilisateur> <mot de passe>
-                if ("new-user".equals(args[0])) { // Si la commande est "new-user", on crée un nouvel utilisateur avec les deux autres arguments
+                if (args[0].equals("new-user")) { // Si la commande est "new-user", on crée un nouvel utilisateur avec les deux autres arguments
                     createUser(args[1], args[2]);
                     ui.receiveData("Utilisateur \"" + args[1] + "\" correctement ajouté !");
+                } else if (args[0].equals("reset-agenda")) {
+                    agenda = new Agenda(DAYS_COUNT);
+                    ui.receiveData("L'agenda a bien été réinitialisé.");
                 } else {
                     ui.receiveData("Commande inconnue.");
                 }
@@ -215,7 +222,7 @@ public class Server extends Thread {
         }
     }
 
-    // Ferme le serveur
+    // Ferme le serveur et enregistre l'agenda
     public void close() {
         try {
             connected = false; // On indique qu'il est déconnecté
@@ -224,6 +231,7 @@ public class Server extends Thread {
             }
             ui.receiveData("Serveur fermé.");
             server.close();
+            saveAgenda();
         } catch (IOException e) {}
     }
 

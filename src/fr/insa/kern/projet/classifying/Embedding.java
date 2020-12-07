@@ -1,4 +1,4 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.classifying;
 
 import java.util.HashMap;
 import java.util.Map;

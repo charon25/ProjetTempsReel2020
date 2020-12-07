@@ -5,6 +5,8 @@
  */
 package fr.insa.kern.projet;
 
+import fr.insa.kern.projet.ui.ClientUI;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -96,7 +98,7 @@ public class Client {
                 return null;
             }
             // On lit la réponse du serveur et on remplace // par des retours à la ligne
-            return in.readLine().replace("// ", "\n");
+            return in.readLine().replace("//", "\n");
         } catch (IOException ex) { // Si il y a eu une erreur, on l'indique sur l'interface
             ui.receiveData("[ERROR] Erreur lors de la lecture ou de l'écriture des flux.");
         }

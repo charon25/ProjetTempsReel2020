@@ -1,4 +1,6 @@
-package fr.insa.kern.projet;
+package fr.insa.kern.projet.ui;
+
+import fr.insa.kern.projet.Server;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -40,7 +42,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
 
     // Initialise les différents composants de la fenêtre
     private void setupWindow() {
-        // FERMETURE DE LA FENETRE
+        // FERMETURE DE LA FENETRE (on ferme la connexion et on enregistre l'agenda au passage)
         WindowListener l = new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (server != null) server.close();
