@@ -114,7 +114,6 @@ public class ClientUI extends JFrame implements ActionListener, KeyListener {
         taConsole.setLineWrap(true);
         spConsole = new JScrollPane(taConsole);
         spConsole.setBounds(182, 12, 458, 411);
-        spConsole.getVerticalScrollBar().addAdjustmentListener(e -> e.getAdjustable().setValue(e.getAdjustable().getMaximum())); // Auto scroll
         add(spConsole);
 
         // CHAMP D'ENTREE
@@ -125,7 +124,7 @@ public class ClientUI extends JFrame implements ActionListener, KeyListener {
         add(tfInput);
 
         // LABEL INPUT
-        lblInput = new JLabel("Commande : ");
+        lblInput = new JLabel("Message : ");
         lblInput.setBounds(100, 432, 100, 13);
         add(lblInput);
 

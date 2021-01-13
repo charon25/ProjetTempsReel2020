@@ -9,7 +9,8 @@ import java.util.*;
 public class EmbeddingClassifier {
 
     // Chemin d'accès aux différents fichiers
-    public static final String DIC_PATH = "dic.txt";
+    public static final String DIC_PATH = "dic.txt"; //Dictionnaire fourni par M. Samet
+    public static final String DIC2_PATH = "dic2.txt"; //Dictionnaire personnel
     public static final String KNN_REFERENCES_PATH = "knn_references.txt";
 
     private int embedding_size; // Taille des vecteurs
@@ -79,7 +80,7 @@ public class EmbeddingClassifier {
         }
     }
 
-    // Renvoie le type dont la similarité est la plus grande sur toutes les phrases de référence
+    // Renvoie le type dont la similarité est la plus grande sur toutes les phrases de référence (k-NN pondéré sur tous les voisins)
     public Classifier.MessageType getMessageTypeByWeighting(String message) {
         // Contient la similarité entre le message et chaque type de référence sous forme de la somme des similarités
         Map<Classifier.MessageType, Double> points = new HashMap<>();

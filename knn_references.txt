@@ -15,6 +15,33 @@ RESERVATION:Je veux un rdv
 RESERVATION:Je veux un rendez-vous
 RESERVATION:créneau stp
 RESERVATION:créneau
+RESERVATION:reserver
+RESERVATION:reservation
+RESERVATION:reserver une machine
+RESERVATION:reserver un creneau
+RESERVATION:reserver un creneau horaire
+RESERVATION:reservation d'une machine
+RESERVATION:reservation d'un creneau
+RESERVATION:reservation d'un creneau horaire
+RESERVATION:reservation de machines
+RESERVATION:reservation de creneaux
+RESERVATION:reservation de creneaux horaires
+RESERVATION:je souhaite reserver un creneau
+RESERVATION:je voudrais reserver un creneau
+RESERVATION:je veux reserver un creneau
+RESERVATION:un creneau est il libre 
+RESERVATION:est il possible de reserver un creneau
+RESERVATION:je souhaite reserver une machine
+RESERVATION:je souhaiterais reserver une machine
+RESERVATION:je voudrais reserver une machine
+RESERVATION:je veux reserver une machine
+RESERVATION:une machine est elle libre 	
+RESERVATION:est il possible de reserver une machine
+RESERVATION:je souhaite reserver un creneau horaire 
+RESERVATION:je souhaites reserver un creneau horaire 
+RESERVATION:je voudrais reserver un creneau horaire 
+RESERVATION:je veux reserver un creneau horaire 
+RESERVATION:un creneau horaire est il libre  
 INFORMATION:Quels sont les créneaux occupés
 INFORMATION:Je voudrais des informations
 INFORMATION:J'aimerais la liste des créneaux vides
@@ -25,7 +52,104 @@ INFORMATION:J'aimerais avoir des informations si possible
 INFORMATION:Des informations seraient appréciées
 INFORMATION:Je veux voir le planning
 INFORMATION:Je veux connaître les disponibilités
+INFORMATION:Je veux connaître les créneaux disponibles
+INFORMATION:c'est quoi les créneaux disponibles
+INFORMATION:c'est quoi le créneau disponible
 INFORMATION:Je veux savoir les prochains créneaux occupés
+INFORMATION:informations
+INFORMATION:information
+INFORMATION:information pour reserver 
+INFORMATION:informations pour reserver 
+INFORMATION:renseignements 
+INFORMATION:renseignement
+INFORMATION:renseignements pour reserver 
+INFORMATION:renseignement pour reserver 
+INFORMATION:puis je avoir des informations sur les reservation de machines
+INFORMATION:puis je avoir des informations sur les reservation de creneaux
+INFORMATION:puis je avoir plus d'informations
+INFORMATION:puis je avoir des renseignements sur les reservation de machines
+INFORMATION:puis je avoir des renseignements sur les reservation de creneaux
+INFORMATION:puis je avoir plus d'informations
+INFORMATION:je voudrais avoir d'autres informations sur les reservation de machines
+INFORMATION:je souhaiterais avoir d'autres informations sur les reservation de machine
+INFORMATION:je souhaite avoir d'autres informations sur les reservation de machine
+INFORMATION:je veux avoir d'autres informations sur les reservation de machine
+INFORMATION:je veux avoir d'autres informations sur les reservation de creneaux
+INFORMATION:je voudrais avoir d'autres informations sur les reservation de creneaux
+INFORMATION:je souhaiterais avoir d'autres informations sur les reservation de creneaux
+INFORMATION:je souhaite avoir d'autres informations sur les reservation de creneaux
+INFORMATION:je voudrais avoir plus d'informations sur les reservation de machines
+INFORMATION:je souhaiterais avoir plus d'informations sur les reservation de machine
+INFORMATION:je souhaite avoir plus d'informations sur les reservation de machine
+INFORMATION:je voudrais avoir plus d'informations sur les reservation de creneaux
+INFORMATION:je souhaiterais avoir plus d'informations sur les reservation de creneaux
+INFORMATION:je souhaite avoir plus d'informations sur les reservation de creneaux
+INFORMATION:je veux avoir plus informations sur les reservation de machine
+INFORMATION:je veux avoir d'autres informations sur les reservation de creneaux
+INFORMATION:je cherche un renseignement a propos de la reservation d'une machine
+INFORMATION:je cherche un renseignement a propos de la reservation d'un creneau
+INFORMATION:je cherche une information a propos de la reservation d'une machine
+INFORMATION:je cherche une information a propos de la reservation d'un creneau
+INFORMATION:je cherche des renseignements a propos de la reservation d'une machine
+INFORMATION:je cherche des renseignements a propos de la reservation d'un creneau
+INFORMATION:je cherche des informations a propos de la reservation d'une machine
+INFORMATION:je cherche des informations a propos de la reservation d'un creneau
+INFORMATION:je cherche une inforamation
+INFORMATION:je cherche des informations
+INFORMATION:je veux des informations
+INFORMATION:je voudrais des informations 
+INFORMATION:je souhaiterais avoir des infomations
+INFORMATION:je veux des informations
+INFORMATION:je voudrais des informations 
+INFORMATION:je souhaiterais avoir des infomations 
+INFORMATION:je cherche un renseignement
+INFORMATION:je cherche des renseignements
+INFORMATION:je veux des renseignements
+INFORMATION:je voudrais des renseignements
+INFORMATION:je souhaiterais avoir des renseignements
+INFORMATION:je veux des renseignements
+INFORMATION:je voudrais des renseignements
+INFORMATION:je souhaiterais avoir des renseignements
+INFORMATION:je veux obtenir des informations
+INFORMATION:je veux obtenir une informations
+INFORMATION:je veux obtenir un renseignement
+INFORMATION:je veux obtenir des renseignements
+INFORMATION:je cherche a obtenir des informations
+INFORMATION:je cherche a obtenir une informations
+INFORMATION:je cherche a obtenir un renseignement
+INFORMATION:je cherche a obtenir des renseignements 
+INFORMATION:je souhaite a obtenir des informations
+INFORMATION:je souhaite a obtenir une informations
+INFORMATION:je souhaite a obtenir un renseignement
+INFORMATION:je souhaite a obtenir des renseignements 
+INFORMATION:je voudrais obtenir des informations
+INFORMATION:je voudrais obtenir une informations
+INFORMATION:je voudrais obtenir un renseignement
+INFORMATION:je voudrais obtenir des renseignements 
+INFORMATION:je veux obtenir des informations sur les reservations
+INFORMATION:je veux obtenir une informations sur les reservations
+INFORMATION:je veux obtenir un renseignement sur les reservations
+INFORMATION:je veux obtenir des renseignements sur les reservations
+INFORMATION:je cherche a obtenir des informations sur les reservations
+INFORMATION:je cherche a obtenir une informations sur les reservations
+INFORMATION:je cherche a obtenir un renseignement sur les reservations
+INFORMATION:je cherche a obtenir des renseignements sur les reservations
+INFORMATION:je souhaite a obtenir des informations sur les reservations
+INFORMATION:je souhaite a obtenir une informations sur les reservations
+INFORMATION:je souhaite a obtenir un renseignement sur les reservations
+INFORMATION:je souhaite a obtenir des renseignements sur les reservations
+INFORMATION:je voudrais obtenir des informations sur les reservations
+INFORMATION:je voudrais obtenir une informations sur les reservations
+INFORMATION:je voudrais obtenir un renseignement sur les reservations
+INFORMATION:je voudrais obtenir des renseignements sur les reservations
+INFORMATION:avez vous des informations a me donner
+INFORMATION:avez vous des renseignements a me donner
+INFORMATION:avez vous des informations a me donner a propos des reservations
+INFORMATION:avez vous des renseignements a me donner a propos des reservations
+INFORMATION:avez vous des renseignements a me donner a propos des reservations de creneaux
+INFORMATION:avez vous des renseignements a me donner a propos des reservations de machines
+INFORMATION:avez vous des informations a me donner a propos des reservations de creneaux
+INFORMATION:avez vous des informations a me donner a propos des reservations de machines
 CONFIRMATION:Oui
 CONFIRMATION:Ok
 CONFIRMATION:D'accord
@@ -33,13 +157,20 @@ CONFIRMATION:Tout à fait
 CONFIRMATION:C'est ça
 CONFIRMATION:Exact
 CONFIRMATION:Parfait
+GREETINGS:Salut
+GREETINGS:Salutations
+GREETINGS:Bonjour
+GREETINGS:GREETINGS
+GREETINGS:Coucou
+GREETINGS:Enchanté
+GREETINGS:bonjour
+GREETINGS:GREETINGS
+GREETINGS:salut
+GREETINGS:bonsoir
+GREETINGS:coucou
+GREETINGS:hey
+GREETINGS:hi
 NEGATION:Non
 NEGATION:Pas du tout
 NEGATION:C'est faux
 NEGATION:Inexact
-GREETINGS:Salut
-GREETINGS:Salutations
-GREETINGS:Bonjour
-GREETINGS:Hello
-GREETINGS:Coucou
-GREETINGS:Enchanté

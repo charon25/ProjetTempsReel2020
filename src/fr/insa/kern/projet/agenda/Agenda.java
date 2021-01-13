@@ -11,7 +11,9 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     private Calendar date; // Date de création de l'agenda
 
     // Caractérise un créneau (disponible, déjà passé, trop loin dans le futur, déjà réservé)
-    public enum Availability {AVAILABLE, PAST, TOO_FAR, ALREADY_BOOKED}
+    public enum Availability {
+        AVAILABLE, PAST, TOO_FAR, ALREADY_BOOKED, ALREADY_BOOKED_BY_YOU
+    }
 
     // Renvoie l'année du prochain couple mois/jour (mois entre 0 et 11). Par exemple, si on est le 24 novembre 2020,
     // alors 'année du 28 novembre sera également 2020, mais celle du 20 novembre sera 2021
@@ -66,7 +68,8 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
             this.date.set(Calendar.SECOND, 0);
             this.date.set(Calendar.MILLISECOND, 0); // On prends la date actuelle
             reader.close();
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+        }
     }
 
     // Réserve un créneau. Renvoie true si la réservation a fonctionnée, false sinon
@@ -98,10 +101,15 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
 
     // Renvoie l'ensemble des créneaux réservés
     public ArrayList<Slot> getAllBookedSlots() {
+        Calendar date = Calendar.getInstance();
+        date.set(Calendar.HOUR, 0);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
         ArrayList<Slot> slots = new ArrayList<>();
         for (Day day : days) { // On parcourt tous les jours
             for (int j = 0; j < day.getSlots().length; j++) { // On parcourt tous les créneaux de chaque jour
-                if (day.getSlots()[j] != null) { // Si le créneau a été réservé
+                if (day.getSlots()[j] != null && date.compareTo(day.getDate()) <= 0) { // Si le créneau a été réservé et postérieure à la date du jour
                     slots.add(day.getSlots()[j]);
                 }
             }
@@ -112,7 +120,7 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     // Indique si un créneau donné est disponible, et si non, pourquoi
     // dateString : jour au format aaaa-mm-jj, hour : heure
     // monthStartsAtZero : indique si les mois sont compris entre 0 et 11 ou 1 et 12
-    public Availability isSlotAvailable(String dateString, int hour, boolean monthStartsAtZero) {
+    public Availability isSlotAvailable(String dateString, int hour, boolean monthStartsAtZero, String user) {
         Calendar date = Calendar.getInstance(); // On calcule la date
         String[] args = dateString.split("-");
         date.set(Calendar.YEAR, Integer.parseInt(args[0]));
@@ -131,7 +139,11 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
         } else if (daysIndex > this.days.length) { // Si elle est trop loin dans le futur
             return Availability.TOO_FAR;
         } else if (this.days[daysIndex].getSlotByHour(hour) != null) { // Si le créneau est déjà réservé
-            return Availability.ALREADY_BOOKED;
+            if (this.days[daysIndex].getSlotByHour(hour).getUser().equals(user)) {
+                return Availability.ALREADY_BOOKED_BY_YOU;
+            } else {
+                return Availability.ALREADY_BOOKED;
+            }
         }
         // Sinon le créneau est disponible
         return Availability.AVAILABLE;
@@ -162,7 +174,5 @@ public class Agenda { // Créneaux de deux heures, de 8h à 18h tous les jours d
     public String getLastAvailableDay() {
         return days[days.length - 1].getDateStringDaysFirst();
     }
-
-
 
 }

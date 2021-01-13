@@ -15,14 +15,14 @@ public class Classifier {
     // Mots à supprimer, comme les prépositions et déterminants
     private static final String[] WORDS_TO_REMOVE = {"je", "j", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "c", "ce", "cette", "ces", "le", "la", "les", "un", "une", "des", "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses", "notre", "nos", "votre", "vos", "leur", "leurs", "à", "y", "du", "de", "ou", "où", "en", "au", "dès", "par", "sur", "sûr", "vers", "pour", "sans"};
     // Symboles de ponctuation à retirer
-    private static final String[] PUNCTATION = {"?", "!", ".", ",", ";", "=", "'", "\"", ":", "'"};
+    private static final String[] PUNCTATION = {"?", "!", ".", ",", ";", "=", "'", "\"", ":"};
     // Mois en toute lettre (de 0 à 11)
     public static final String[] MONTHS = {"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"};
 
     // REPONSE DU CHATBOT SELON LE CAS (les %nom% sont remplacés dans le code)
     private static final String ANSWER_GREETING = "Bonjour.";
-    private static final String ANSWER_RESERVATION = "Créneau souhaité : %hourStart%h-%hourEnd%h le %day% %month% . Est-ce correct ?";
-    private static final String[] ANSWER_RESERVATION_ERRORS = {"Le créneau souhaité est au-delà de la date limite du calendrier. Veuillez en choisir un autre.", "Le créneau souhaité est dans le passé. Veuillez en choisir un autre.", "Le créneau souhaité est déjà réservé. Veuillez en choisir un autre."};
+    private static final String ANSWER_RESERVATION = "Créneau souhaité : %hourStart%h-%hourEnd%h le %day% %month%. Est-ce correct ?";
+    private static final String[] ANSWER_RESERVATION_ERRORS = {"Le créneau souhaité est au-delà de la date limite du calendrier. Veuillez en choisir un autre.", "Le créneau souhaité est dans le passé. Veuillez en choisir un autre.", "Le créneau souhaité est déjà réservé. Veuillez en choisir un autre.", "Vous avez déjà réservé ce créneau."};
     private static final String ANSWER_RESERVATION_MISSING = "Impossible de récupérer l'heure ou la date du rendez-vous souhaité. Merci de les renvoyer.";
     private static final String ANSWER_CONFIRMATION_FAILED = "Une erreur est survenue. Merci de vérifier que le créneau est libre.";
     private static final String ANSWER_CONFIRMATION = "Créneau correctement réservé.";
@@ -69,7 +69,7 @@ public class Classifier {
             case GREETINGS: // Si ce sont des salutations, on en renvoie
                 return greetingsResponse();
             case RESERVATION: // Si c'est une réservation
-                return reservationReponse(agenda, message);
+                return reservationReponse(agenda, message, user);
             case CONFIRMATION: // Si le message est un message de confirmation (et que le précédent était donc de réservation)
                 return confirmationResponse(agenda, user, reservationDateTime);
             case NEGATION: // Si l'utilisateur annule
@@ -88,17 +88,19 @@ public class Classifier {
         output[1] = ANSWER_GREETING;
         return output;
     }
-    private static Object[] reservationReponse(Agenda agenda, String message) {
+    private static Object[] reservationReponse(Agenda agenda, String message, String user) {
         int[] dateTime = extractDateTime(message); // On essaye d'extraire les informations de date et heure
-        // Les informations de dateTime sont : 0 = infos trouvées (-1 ou 1), 1 = heure, 2 = jour, 3 = mois (de 0 à 11)
+        // Les informations de dateTime sont, par index : 0 = infos trouvées (-1 ou 1), 1 = heure, 2 = jour, 3 = mois (de 0 à 11)
         if (dateTime[0] == 1) { // Si on a pu extraire les infos correctement
             // On vérifie si le créneau est disponible
-            System.out.println(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2] + "/" + dateTime[1]);
-            Agenda.Availability availability = agenda.isSlotAvailable(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2], dateTime[1], true);
-            System.out.println(availability);
+            Agenda.Availability availability = agenda.isSlotAvailable(Agenda.getYearOfDayMonth(dateTime[2], dateTime[3]) + "-" + dateTime[3] + "-" + dateTime[2], dateTime[1], true, user);
             Object[] output = new Object[7];
             output[0] = MessageType.RESERVATION;
             switch (availability) { // Selon l'état du créneau souhaité, on répond différent message
+                case ALREADY_BOOKED_BY_YOU:
+                    output[1] = ANSWER_RESERVATION_ERRORS[3];
+                    output[6] = false;
+                    break;
                 case ALREADY_BOOKED:
                     output[1] = ANSWER_RESERVATION_ERRORS[2];
                     output[6] = false;
@@ -206,7 +208,7 @@ public class Classifier {
         int[] dateTimeOutput;
 
         // ***HEURE
-        // Permet de récupérer un pattern de type "14h" ou "08 h"
+        // Permet de récupérer un pattern de type "14h" ou "14 h" ou "08 h" ou "8h"
         Pattern hourPattern = Pattern.compile("([01]?[0-9]) ?h");
         Matcher hourMatcher = hourPattern.matcher(message);
         boolean hasHour = hourMatcher.find();

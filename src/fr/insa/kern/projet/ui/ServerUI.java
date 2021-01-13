@@ -77,7 +77,6 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         taConsole.setLineWrap(true);
         spConsole = new JScrollPane(taConsole);
         spConsole.setBounds(182, 12, 358, 311);
-        spConsole.getVerticalScrollBar().addAdjustmentListener(e -> e.getAdjustable().setValue(e.getAdjustable().getMaximum())); // Auto scroll
         add(spConsole);
 
         // CHAMP D'ENTREE
