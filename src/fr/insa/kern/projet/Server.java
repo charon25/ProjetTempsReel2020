@@ -71,7 +71,7 @@ public class Server extends Thread {
         this.logins = new ArrayList<>();
         this.ui = ui;
         // On initialise le classifier par vectorisation avec les chemins du dictionnaire et des phrases de référence du k-NN
-        this.embeddingClassifier = new EmbeddingClassifier(EmbeddingClassifier.DIC_PATH, EmbeddingClassifier.KNN_REFERENCES_PATH);
+        this.embeddingClassifier = new EmbeddingClassifier(EmbeddingClassifier.DIC2_PATH, EmbeddingClassifier.KNN_REFERENCES_PATH);
         try {
             // On essaye de créer un serveur, et si c'est bon on l'indique à l'interface
             this.server = new ServerSocket(0, 1, ipAddress);
@@ -208,6 +208,7 @@ public class Server extends Thread {
         }
     }
 
+    // Permet de sélectionner quelle méthode de classification on veut utiliser
     public void setClassificationMethod(ClassificationMethod method) {
         switch (method) {
             case LEVENSHTEIN:
