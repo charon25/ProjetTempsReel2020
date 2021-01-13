@@ -229,7 +229,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     }
 
     @Override
-    // Détecte un appui sur le clavier
+    // Détecte un appui sur une touche
     public void keyTyped(KeyEvent e) {
         // Si il s'agit de l'entrée de texte, qu'on appuie sur Entrée et que le serveur est connecté
         // Alors on envoie le texte sous forme d'une commande
