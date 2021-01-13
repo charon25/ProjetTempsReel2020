@@ -1,6 +1,8 @@
 package fr.insa.kern.projet.ui;
 
 import fr.insa.kern.projet.Server;
+import fr.insa.kern.projet.classifying.Classifier;
+import fr.insa.kern.projet.classifying.EmbeddingClassifier;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,7 +13,7 @@ import java.util.Enumeration;
 // Interface utilisateur du serveur
 public class ServerUI extends JFrame implements ActionListener, KeyListener {
 
-    // Boutons pour lancer et stopper le serveur
+	// Boutons pour lancer et stopper le serveur
     private JButton btnRunServer;
     private JButton btnStopServer;
     // Infos du serveur (adresse IP et port)
@@ -28,14 +30,21 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     private JRadioButton rdLevenshtein;
     private JRadioButton rdKNN;
     private JRadioButton rdWeighting;
+    // Boutons pour sélectionner le dictionnaire
+    private JLabel lblDictionaries;
+    private ButtonGroup grpDictionaries;
+    private JRadioButton rdDic1;
+    private JRadioButton rdDic2;
 
     final private Border border = BorderFactory.createLineBorder(Color.BLACK); // Permet d'avoir une bordure noire
 
     private Server server; // Instance du serveur associée
+    private String dictionaryPath;
 
     // Instancie l'interface
     public ServerUI() {
         super("Projet Système Temps Réel - Serveur");
+        dictionaryPath = EmbeddingClassifier.DIC2_PATH; // Par défaut, on choisit notre propre dictionnaire de mots vectorisés
         setupWindow();
         //On choisit le classification par k-NN par défaut
     }
@@ -97,7 +106,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         lblClassification.setBounds(12, 150, 164, 30);
         add(lblClassification);
         // RADIOS BOUTONS
-        // LEVENSHTEIN
+        // Levenshtein
         rdLevenshtein = new JRadioButton();
         rdLevenshtein.setBounds(10, 172, 164, 30);
         rdLevenshtein.setText("Distance de Levenshtein");
@@ -125,6 +134,30 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
         grpClassification.add(rdLevenshtein);
         grpClassification.add(rdKNN);
         grpClassification.add(rdWeighting);
+        
+        // DICTIONNAIRES
+        // LABEL
+        lblDictionaries = new JLabel("Dictionnaire à utiliser : ");
+        lblDictionaries.setBounds(12, 240, 164, 30);
+        add(lblDictionaries);
+        // RADIOS BOUTONS
+        // Dictionnaire 1 (prof)
+        rdDic1 = new JRadioButton();
+        rdDic1.setBounds(10, 262, 164, 30);
+        rdDic1.setText("Dictionnaire M. Samet");
+        rdDic1.addActionListener(this);
+        add(rdDic1);
+        // Dictionnaire 2 (nous)
+        rdDic2 = new JRadioButton();
+        rdDic2.setBounds(10, 285, 164, 30);
+        rdDic2.setText("Dictionnaire personnel");
+        rdDic2.setSelected(true);
+        rdDic2.addActionListener(this);
+        add(rdDic2);
+        // BUTTON GROUP
+        grpDictionaries = new ButtonGroup();
+        grpDictionaries.add(rdDic1);
+        grpDictionaries.add(rdDic2);
 
         // FENETRE
         setSize(562, 400);
@@ -142,7 +175,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     // Détecte un clic sur un bouton
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(btnRunServer)) { // Si c'est le bouton pour lancer le serveur, on le lance
-            server = new Server(this);
+            server = new Server(this, dictionaryPath);
             server.start(); // On démarre le serveur
             if (server.isConnected()) { // Si il est connecté, on affiche les informations sur la fenêtre
                 lblServerInfo.setText("<html>Adresse : " + server.getInetAddress() + "<br>Port : " + server.getLocalPort() + "</html>");
@@ -153,8 +186,15 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
                     AbstractButton button = buttons.nextElement();
                     button.setEnabled(true);
                 }
+                // Par défaut, on choisit d'utiliser le k-NN
                 server.setClassificationMethod(Server.ClassificationMethod.KNN);
-            }
+                
+				// Parcourt tous les boutons de sélection de dictionnaire pour tous les désactiver
+				for (Enumeration<AbstractButton> buttons = grpDictionaries.getElements(); buttons.hasMoreElements();) {
+					AbstractButton button = buttons.nextElement();
+					button.setEnabled(false);
+				}
+			}
         } else if (e.getSource().equals(btnStopServer)) { // Si c'est le bouton pour stopper le serveur, on l'arrête
             if (server.isConnected()) server.close();
             lblServerInfo.setText("Serveur éteint.");
@@ -165,6 +205,11 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
                 AbstractButton button = buttons.nextElement();
                 button.setEnabled(false);
             }
+            // Parcourt tous les boutons de sélection de dictionnaire pour tous les activer
+			for (Enumeration<AbstractButton> buttons = grpDictionaries.getElements(); buttons.hasMoreElements();) {
+				AbstractButton button = buttons.nextElement();
+				button.setEnabled(true);
+			}
         } else if (e.getSource().equals(rdLevenshtein)) { // Si c'est le bouton de sélection de la distance de Levenshtein, on l'indique au serveur
             server.setClassificationMethod(Server.ClassificationMethod.LEVENSHTEIN);
             taConsole.append("Méthode de classification choisie : distance de Levenshtein.\n");
@@ -173,7 +218,13 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
             taConsole.append("Méthode de classification choisie : k-NN.\n");
         } else if (e.getSource().equals(rdWeighting)) {
             server.setClassificationMethod(Server.ClassificationMethod.WEIGHTING);
-            taConsole.append("Méthode de classification choisie : voisins pondérés");
+            taConsole.append("Méthode de classification choisie : voisins pondérés\n");
+        } else if (e.getSource().equals(rdDic1)) {
+        	dictionaryPath = EmbeddingClassifier.DIC_PATH;
+        	taConsole.append("Dictionnaire choisi : celui de M. Samet\n");
+        } else if (e.getSource().equals(rdDic2)) {
+        	dictionaryPath = EmbeddingClassifier.DIC2_PATH;
+        	taConsole.append("Dictionnaire choisi : le notre\n");
         }
     }
 

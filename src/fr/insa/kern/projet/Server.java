@@ -63,15 +63,15 @@ public class Server extends Thread {
         return getMessageType;
     }
 
-    // Instancie le serveur avec l'interface graphique
-    public Server(ServerUI ui) {
+    // Instancie le serveur avec l'interface graphique et le chemin vers le dictionnaire à choisir
+    public Server(ServerUI ui, String dictionaryPath) {
         this.ipAddress = INetAdressUtil.premiereAdresseNonLoopback(); // On récupère l'adresse IP locale
         // On instancie les listes
         this.connections = new ArrayList<>();
         this.logins = new ArrayList<>();
         this.ui = ui;
         // On initialise le classifier par vectorisation avec les chemins du dictionnaire et des phrases de référence du k-NN
-        this.embeddingClassifier = new EmbeddingClassifier(EmbeddingClassifier.DIC2_PATH, EmbeddingClassifier.KNN_REFERENCES_PATH);
+        this.embeddingClassifier = new EmbeddingClassifier(dictionaryPath, EmbeddingClassifier.KNN_REFERENCES_PATH);
         try {
             // On essaye de créer un serveur, et si c'est bon on l'indique à l'interface
             this.server = new ServerSocket(0, 1, ipAddress);
