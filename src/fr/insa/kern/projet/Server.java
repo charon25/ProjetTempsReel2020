@@ -228,8 +228,9 @@ public class Server extends Thread {
         try {
             connected = false; // On indique qu'il est déconnecté
             for (SocketMessaging connection : connections) { // On ferme toutes les connexions en cours
-                connection.close();
+            	connection.close();
             }
+            connections.clear();
             ui.receiveData("Serveur fermé.");
             server.close();
             saveAgenda();

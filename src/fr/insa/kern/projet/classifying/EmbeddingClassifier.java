@@ -63,7 +63,12 @@ public class EmbeddingClassifier {
     public Classifier.MessageType getMessageTypeByClosestNeighbor(String message) {
         // TreeMap triée par ordre décroissant, qui va permettre de savoir quelles phrases sont les plus similaires (plus la similarité cosinus est grande, plus elles sont similaires)
         Map<Double, Classifier.MessageType> points = new TreeMap<>(Comparator.reverseOrder());
-        Vector messageEmbedding = embedding.getSentenceEmbedding(message); // On calcule la vectorisation du message
+        // On calcule la vectorisation du message, et si elle est nulle (= aucun mot dedans n'est connu), on renvoie directement qu'on ne connait pas le mot
+        Vector messageEmbedding = embedding.getSentenceEmbedding(message);
+        if (messageEmbedding.isNullVector()) {
+        	return Classifier.MessageType.OTHER;
+        }
+        
         for (Map.Entry<Classifier.MessageType, ArrayList<Vector>> reference : references.entrySet()) { // On parcourt tous les types possibles
             for (int i = 0; i < reference.getValue().size(); i++) { // Pour chaque type, on parcourt toutes les vectorisations associées
                 double similarity = messageEmbedding.cosineSimilarity(reference.getValue().get(i)); // On calcule la similarité pour toutes ces combinaisons
@@ -71,7 +76,7 @@ public class EmbeddingClassifier {
             }
         }
 
-        // On renvoie ensuite le plus proche voisin
+        // On renvoie ensuite le plus proche voisin, avec un seuil si on est trop loin
         Map.Entry<Double, Classifier.MessageType> closestNeighbor = points.entrySet().iterator().next();
         if (closestNeighbor.getKey() > 0) {
             return closestNeighbor.getValue();
@@ -84,8 +89,12 @@ public class EmbeddingClassifier {
     public Classifier.MessageType getMessageTypeByWeighting(String message) {
         // Contient la similarité entre le message et chaque type de référence sous forme de la somme des similarités
         Map<Classifier.MessageType, Double> points = new HashMap<>();
-
-        Vector messageEmbedding = embedding.getSentenceEmbedding(message); // On calcule la vectorisation du message
+        // On calcule la vectorisation du message, et si elle est nulle (= aucun mot dedans n'est connu), on renvoie directement qu'on ne connait pas le mot
+        Vector messageEmbedding = embedding.getSentenceEmbedding(message);
+        if (messageEmbedding.isNullVector()) {
+        	System.out.println("iciicici");
+        	return Classifier.MessageType.OTHER;
+        }
         for (Map.Entry<Classifier.MessageType, ArrayList<Vector>> reference : references.entrySet()) { // On parcourt tous les types possibles
             for (int i = 0; i < reference.getValue().size(); i++) { // Pour chaque type, on parcourt toutes les vectorisations associées
                 double similarity = messageEmbedding.cosineSimilarity(reference.getValue().get(i)); // On calcule la similarité pour toutes ces combinaisons

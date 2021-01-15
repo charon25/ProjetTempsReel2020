@@ -68,6 +68,16 @@ public class Vector {
         }
         return out;
     }
+    
+    // Indique si le vecteur n'est constitué que de zéros
+    public boolean isNullVector() {
+    	for (int i = 0; i < length; i++) {
+    		if (Math.abs(values[i]) > 0.0000001) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 
     // Méthode statique qui renvoie un vecteur de taille spécifiée rempli de 0
     public static Vector nullVector(int length) {

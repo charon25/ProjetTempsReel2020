@@ -169,6 +169,7 @@ public class ServerUI extends JFrame implements ActionListener, KeyListener {
     // Affiche les données reçues depuis l'instance du Server
     public void receiveData(String s) {
         taConsole.append(s + "\n");
+        spConsole.getVerticalScrollBar().setValue(spConsole.getVerticalScrollBar().getMaximum());
     }
 
     @Override

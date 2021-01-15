@@ -33,7 +33,6 @@ public class SocketMessaging extends Thread {
     // METHODE SANS MACHINE LEARNING
     private String[] reservationDateTime; // Heure et date de réservation
     private boolean wasReservation; // Indique si le message précédent était un message de réservation
-    // ##################################################
 
     // ACCESSEURS
     public boolean isConnected() {
@@ -172,7 +171,6 @@ public class SocketMessaging extends Thread {
             server.sendStringToUI("Connexion avec \"" + name + "\" fermée.");
             connected = false;
             socket.close();
-            server.getConnections().remove(this);
         } catch (IOException ex) {}
     }
 

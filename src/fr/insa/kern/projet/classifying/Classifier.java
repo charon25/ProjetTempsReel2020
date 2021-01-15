@@ -3,6 +3,7 @@ package fr.insa.kern.projet.classifying;
 import fr.insa.kern.projet.agenda.*;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +19,7 @@ public class Classifier {
     private static final String[] PUNCTATION = {"?", "!", ".", ",", ";", "=", "'", "\"", ":"};
     // Mois en toute lettre (de 0 à 11)
     public static final String[] MONTHS = {"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"};
+    public static final int[] DAYS_IN_MONTH = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     // REPONSE DU CHATBOT SELON LE CAS (les %nom% sont remplacés dans le code)
     private static final String ANSWER_GREETING = "Bonjour.";
@@ -231,6 +233,10 @@ public class Classifier {
                 day = Integer.parseInt(dateMatcher.group(5));
                 month = getMonthIndex(dateMatcher.group(6));
             }
+            // Si le nombre de jour n'est pas cohérent avec le mois, on fait comme si on avait pas trouvé la date
+            if (day > 0 && day > getDaysInMonth(month)) {
+            	hasDate = false;
+            }
         }
 
         // Si on a trouvé les deux, on les renvoie et on met un 1 dans la première case de la sortie
@@ -286,5 +292,19 @@ public class Classifier {
                 return 11;
         }
         return -1;
+    }
+    
+    // Indique le nombre de jour dans chaque mois
+    private static int getDaysInMonth(int month) {
+    	if (month == 1) {
+			int year = Calendar.getInstance().get(Calendar.YEAR);
+			if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+				return 29;
+			} else {
+				return 28;
+			}
+    	} else {
+    		return DAYS_IN_MONTH[month];
+    	}
     }
 }
