@@ -14,7 +14,7 @@ public class Classifier {
     public enum MessageType {GREETINGS, RESERVATION, CONFIRMATION, NEGATION, INFORMATION, OTHER}
 
     // Mots à supprimer, comme les prépositions et déterminants
-    private static final String[] WORDS_TO_REMOVE = {"je", "j", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "c", "ce", "cette", "ces", "le", "la", "les", "un", "une", "des", "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses", "notre", "nos", "votre", "vos", "leur", "leurs", "à", "y", "du", "de", "ou", "où", "en", "au", "dès", "par", "sur", "sûr", "vers", "pour", "sans"};
+    private static final String[] WORDS_TO_REMOVE = {"est", "je", "j", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "c", "ce", "cette", "ces", "le", "la", "les", "un", "une", "des", "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses", "notre", "nos", "votre", "vos", "leur", "leurs", "à", "y", "du", "de", "ou", "où", "en", "au", "dès", "par", "sur", "sûr", "vers", "pour", "sans"};
     // Symboles de ponctuation à retirer
     private static final String[] PUNCTATION = {"?", "!", ".", ",", ";", "=", "'", "\"", ":"};
     // Mois en toute lettre (de 0 à 11)
@@ -197,6 +197,9 @@ public class Classifier {
             }
             if (message.endsWith(" " + word)) { // A la fin
                 message = message.substring(0, message.length() - word.length());
+            }
+            if (message.equals(word)) {
+            	message = "";
             }
         }
         // Enfin on remplace les espaces multiples par une seule, et on enlève les espaces en début et fin de message

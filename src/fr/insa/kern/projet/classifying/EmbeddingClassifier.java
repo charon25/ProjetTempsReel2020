@@ -55,6 +55,7 @@ public class EmbeddingClassifier {
                 // On calcule la vectorisation de la phrase et on l'ajoute à la liste associée au type
                 references.get(Classifier.MessageType.valueOf(args[0])).add(embedding.getSentenceEmbedding(args[1]));
             }
+            bufferedReader.close();
 
         } catch (IOException e) {}
     }
